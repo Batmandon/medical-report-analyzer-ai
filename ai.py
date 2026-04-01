@@ -17,31 +17,35 @@ def create_embedding(text):
         logger.error(f"Embedding failed: {str(e)}")
         raise
     
-def response_document(text:str, file_id: int):
+def response_document(text:str):
   
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=
-        f"""You are a medical report analyzer. Analyze this medical report and provide:
-        1. A brief overview of what this report is about
-        2. Key findings and values (highlight abnormal ones clearly)
-        3. What these results mean in simple language a patient can understand
-        4. Any values that need immediate attention
+        f"""You are a friendly medical report analyzer. Analyze this report and respond in this exact format:
 
-        Be clear, concise, and use simple language. Avoid unnecessary medical jargon.
+**What this report is about**
+One line summary only.
 
-        Report:{text}""")
+**Values that need attention**
+* Value Name: result (normal range) — what it means in 5 words max
+* Value Name: result (normal range) — what it means in 5 words max
+
+**What's normal**
+One line only.
+
+**Bottom line**
+2-3 sentences max. Simple, friendly. End with when to see a doctor.
+
+Be concise. No medical jargon. No long paragraphs.
+
+Report: {text}""")
+
 
     summary =  response.text
     token_used = response.usage_metadata.total_token_count
 
-    with get_cursor() as cursor:
-        cursor.execute(
-            "INSERT INTO summaries (file_id, summary, tokens_used) VALUES(%s, %s, %s)",
-                (file_id, summary, token_used)
-        )
-
-    return summary
+    return summary,token_used
 
 def ask_document(context, question):
 

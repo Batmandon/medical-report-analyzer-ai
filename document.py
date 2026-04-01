@@ -33,6 +33,10 @@ def upload_document(file:UploadFile, token:str):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file,buffer)
 
+
+    text, chunks_with_embeddings = process_document(file_path)
+    summary, token_used = response_document(text)
+
     with get_cursor() as cursor:
         cursor.execute(
             "INSERT INTO files (user_id, filename, path) VALUES (%s, %s, %s) RETURNING id",
@@ -43,10 +47,18 @@ def upload_document(file:UploadFile, token:str):
 
         cursor.execute("INSERT INTO chat_history(file_id, history) VALUES (%s, %s)",
                        (file_id, json.dumps([])))
+        
+        for chunk, embedding in chunks_with_embeddings:
 
-    text = process_document(file_path, file_id)
+            cursor.execute(
+                "INSERT INTO document_chunks (file_id, chunk_text, embedding) VALUES (%s, %s, %s)",
+                (file_id, chunk, embedding)
+            )
 
-    summary = response_document(text, file_id)
+        cursor.execute(
+            "INSERT INTO summaries (file_id, summary, tokens_used) VALUES (%s, %s, %s)",
+            (file_id, summary, token_used)
+        )
 
     return {
         "message": "File uploaded sucessfully",
@@ -131,8 +143,6 @@ def delete_document(file_id: int, token: str):
 
         cursor.execute("DELETE FROM files WHERE id = %s AND user_id = %s", (file_id, user_id))
         
-        cursor.execute ("DELETE FROM document_chunks WHERE file_id = %s", (file_id,))
-
         return {"message": "file deleted successfully"}
     
 def get_file_summary(file_id: int, token: str):
@@ -144,7 +154,10 @@ def get_file_summary(file_id: int, token: str):
         if not user:
             return {"error": "User not found"}
 
-        cursor.execute("SELECT summary FROM summaries WHERE file_id = %s", (file_id,))
+        user_id = user["id"]
+
+        cursor.execute("SELECT s.summary FROM summaries s JOIN files f ON f.id = s.file_id WHERE s.file_id = %s AND f.user_id = %s", 
+                   (file_id, user_id))
         row = cursor.fetchone()
 
         if not row:

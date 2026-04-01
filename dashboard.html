@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> Dashboard - MedRep</title>
+    <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body>
+    
+    <div id="app">
+        <div id="sidebar">
+            <div id="sidebar-header">
+                <h2>MedRep</h2>
+            </div>
+            
+            <button type="button" id="NewchatBtn"> + New Chat</button>
+            
+            <div id="chat-history">
+                <ul id="chat-list"></ul>
+                <p id="nochats">No chats yet</p>
+            </div>
+        </div>
+        
+        <button type="button" id="toggle-btn">☰</button>
+        
+        <div id="chat-container">
+            
+            <h1>Start Analyzing Your Report</h1>
+            
+            <div id="chat-messages">
+                
+            </div>
+            
+            <div id="chat-input-box">
+                <input type="file" id="file-input" accept=".pdf" hidden />
+                <button type="button" id="UploadBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-plus-icon lucide-plus">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                </svg>
+            </button>
+            
+            <textarea id="chat-input" placeholder="Ask anything about your report..." rows="1"></textarea>
+            
+            <button type="button" id="SendBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-arrow-up-icon lucide-arrow-up">
+                <path d="m5 12 7-7 7 7" />
+                <path d="M12 19V5" />
+            </svg>
+        </button>
+        
+    </div>
+    
+</div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+body {
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#login-container {
+    background: #fff;
+    border-top: 4px solid #2563eb;
+    padding: 2rem;
+    width: 400px;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+}
+
+label {
+    display: block;
+    margin-top: 1rem;
+}
+
+input {
+    display: block;
+    width: 95%;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 0.7rem;
+    margin-top: 1.5rem;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+}

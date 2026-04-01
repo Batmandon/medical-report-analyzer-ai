@@ -36,7 +36,7 @@ def create_database():
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS files(
                     id SERIAL PRIMARY KEY,
-                    user_id INTEGER,
+                    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
                     filename TEXT,
                     path TEXT
                 )
@@ -45,7 +45,7 @@ def create_database():
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS summaries(
                     id SERIAL PRIMARY KEY,
-                    file_id INTEGER,
+                    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
                     summary TEXT,
                     tokens_used INTEGER,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -55,7 +55,7 @@ def create_database():
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS document_chunks(
                     id SERIAL PRIMARY KEY,
-                    file_id INTEGER,
+                    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
                     chunk_text TEXT,
                     embedding VECTOR(3072)
                 )
@@ -64,7 +64,7 @@ def create_database():
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS chat_history(
                     id SERIAL PRIMARY KEY,
-                    file_id INTEGER,
+                    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
                     history JSONB             
                 )
                 """)

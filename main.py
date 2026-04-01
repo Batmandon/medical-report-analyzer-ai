@@ -17,6 +17,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -64,7 +65,7 @@ def refresh_user(request: Request, User: UserRefresh):
 def summarize_document(request: Request, file: UploadFile = File(...), token: str = Depends(oauth2_scheme)):
     result = upload_document(file, token)
     if "error" in result:
-        raise HTTPException(status_code=404, detail=result["error"])
+        raise HTTPException(status_code=401, detail=result["error"])
     return result
 
 @app.post("/ask/document")
