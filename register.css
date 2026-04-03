@@ -39,3 +39,15 @@ button {
     cursor: pointer;
 }
 
+@media (max-width: 768px) {
+    #register-container {
+        width: 95%;
+        margin: 20px auto;
+        border-radius: 12px;
+    }
+
+    body {
+        align-items: flex-start;
+        padding-top: 30px;
+    }
+}

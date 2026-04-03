@@ -295,3 +295,42 @@ h1 {
     align-items: center;
     justify-content: space-between;
 }
+
+@media (max-width: 768px) {
+    
+    /* Hide sidebar by default on mobile */
+    #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 998;
+        transform: translateX(-100%);
+    }
+
+    /* Show sidebar when toggled */
+    #sidebar:not(.hidden) {
+        transform: translateX(0);
+    }
+
+    /* Chat takes full width */
+    #chat-container {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    /* Wider chat input and messages */
+    #chat-input-box {
+        width: 90%;
+    }
+
+    #chat-messages {
+        width: 90%;
+        max-width: 90%;
+    }
+
+    h1 {
+        width: 90%;
+        font-size: 24px;
+        text-align: center;
+    }
+}
