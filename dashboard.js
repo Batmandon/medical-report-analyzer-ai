@@ -10,22 +10,22 @@ let file = null;
 
 // Initialize the toggle button position
 toggleBtn.style.left = '215px';
-toggleBtn.addEventListener('click', function() {
+toggleBtn.addEventListener('click', function () {
     sidebar.classList.toggle('hidden');
-    
+
     if (sidebar.classList.contains('hidden')) {
         toggleBtn.style.left = '10px';
         chatContainer.classList.add('expanded');
-        
+
     } else {
         toggleBtn.style.left = '215px';
         chatContainer.classList.remove('expanded');
     }
-    
+
 });
 
 // Auto-resize chat input
-chatInput.addEventListener('input', function() {
+chatInput.addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = this.scrollHeight + 'px';
 });
@@ -33,7 +33,7 @@ chatInput.addEventListener('input', function() {
 // AutoMatically get access_token from localStorage and include it in the Authorization header for all fetch requests
 async function fetchWithAuth(url, options = {}) {
     const access_token = localStorage.getItem("access_token");
-    
+
     options.headers = {
         ...options.headers,
         "Authorization": `Bearer ${access_token}`
@@ -53,9 +53,9 @@ async function fetchWithAuth(url, options = {}) {
                 token: refresh_token
             })
         });
-        
+
         const data = await refreshResponse.json();
-        
+
         if (refreshResponse.ok) {
             localStorage.setItem("access_token", data.access_token);
 
@@ -73,11 +73,11 @@ async function fetchWithAuth(url, options = {}) {
     return response;
 }
 
-uploadBtn.addEventListener('click', async() => {
+uploadBtn.addEventListener('click', async () => {
     fileInput.click();
 });
 
-fileInput.addEventListener('change', async() => {
+fileInput.addEventListener('change', async () => {
     file = fileInput.files[0];
 
     if (!file) {
@@ -99,57 +99,100 @@ function addMessage(text, type) {
     }
 
     document.getElementById('chat-messages').appendChild(msg);
-    
+
     // Hide heading when first message appears
     document.querySelector('h1').style.display = 'none';
-    
+
     // Switch layout
     document.getElementById('chat-container').classList.add('has-messages');
-    
+
     msg.scrollIntoView({ behavior: 'smooth' });
 }
 
-sendBtn.addEventListener('click', async() => {
+sendBtn.addEventListener('click', async () => {
     try {
-        if (!file) {
-            alert("Please select a file to upload.");
-            return;
+        if (file) {
+            addMessage(`📄 ${file.name}`, 'user-message');
+            chatInput.value = "";
+
+            const loadingMsg = document.createElement('div');
+            loadingMsg.classList.add('message', 'ai-message', 'loading');
+            loadingMsg.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+            document.getElementById('chat-messages').appendChild(loadingMsg);
+            loadingMsg.scrollIntoView({ behavior: 'smooth' });
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetchWithAuth("http://localhost:8000/summarize/document", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            loadingMsg.remove();
+
+            if (!response.ok) {
+                addMessage(`${data.detail}`, 'ai-message');
+                return;
+            }
+
+            if (data.summary) {
+                addMessage(data.summary, 'ai-message');
+                file = null;
+                fileInput.value = "";
+                currentFileId = data.file_id; //  store file_id
+                loadUserFiles();
+            }
+
+        } else if (chatInput.value.trim() !== "") {
+
+            const message = chatInput.value.trim();
+
+            if (!currentFileId) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            addMessage(message, 'user-message');
+            chatInput.value = "";
+
+            const loadingMsg = document.createElement('div');
+            loadingMsg.classList.add('message', 'ai-message', 'loading');
+            loadingMsg.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+            document.getElementById('chat-messages').appendChild(loadingMsg);
+            loadingMsg.scrollIntoView({ behavior: 'smooth' });
+
+            const response = await fetchWithAuth("http://localhost:8000/ask/document", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    question: message,
+                    file_id: currentFileId
+                })
+            });
+
+            const data = await response.json();
+            loadingMsg.remove();
+
+            if (!response.ok) {
+                //  backend error → show in chat
+                addMessage(`${data.detail}`, 'ai-message');
+                return;
+            }
+
+            //backend returns answer as plain string
+            addMessage(data, 'ai-message');
+
+        } else {
+            alert("Please select a file or type a question.");
         }
 
-        // User message using helper
-        addMessage(`📄 ${file.name}`, 'user-message');
-        chatInput.value = "";
-
-        const loadingMsg = document.createElement('div');
-        loadingMsg.classList.add('message', 'ai-message', 'loading');
-        loadingMsg.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
-        document.getElementById('chat-messages').appendChild(loadingMsg);
-        loadingMsg.scrollIntoView({ behavior: 'smooth' });
-        
-        const formData = new FormData();
-        formData.append("file", file);
-        
-        const response = await fetchWithAuth("http://localhost:8000/summarize/document", {
-            method: "POST",
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        loadingMsg.remove();
-        
-        if (data.summary) {
-            addMessage(data.summary, 'ai-message'); // AI message using helper
-            file = null;
-            fileInput.value = "";
-            loadUserFiles();
-        }
-        
     } catch (error) {
         console.error("Error caught:", error);
+        addMessage("Something went wrong. Try again.", 'ai-message');
     }
 });
-
 
 newChatBtn.addEventListener('click', () => {
     document.getElementById('chat-messages').innerHTML = '';
@@ -181,13 +224,49 @@ async function loadUserFiles() {
             li.textContent = file.filename;
             li.dataset.fileId = file.id;
             li.classList.add('chat-item');
+
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.classList.add('delBtn');
+
+            delBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+
+                if (!confirm("Are you sure you want to delete this file?")) {
+                    return;
+                }
+
+            try {
+                const response = await fetchWithAuth(`http://localhost:8000/delete/files?file_id=${file.id}`, {
+                    method: "DELETE"
+                });
+
+                if (response.ok) {
+                    li.remove(); //  remove from UI even if backend deletion fails
+                    alert(`${file.filename} deleted successfully.`);
+
+                    if (Number(currentFileId) === Number(file.id)) {
+                        document.getElementById('chat-messages').innerHTML = '';
+                        document.querySelector('h1').style.display = 'block';
+                        document.getElementById('chat-container').classList.remove('has-messages');                    
+                        currentFileId = null;
+                    }
+                } else {
+                    alert(`Failed to delete ${file.filename}. Try again.`);
+                }
+
+            } catch (error) {
+                console.error("Error deleting file:", error);
+            }
+        });
+            li.appendChild(delBtn);
             li.addEventListener('click', () => loadFileChat(file.id));
             chatList.appendChild(li);
-        });
+    });
 
     } catch (error) {
         console.error("Error loading files:", error);
-    }    
+    }
 }
 
 async function loadFileChat(fileId) {
@@ -197,7 +276,7 @@ async function loadFileChat(fileId) {
         const response = await fetchWithAuth(`http://localhost:8000/files/${fileId}`);
         const data = await response.json();
         console.log("File summary response:", data);
-    
+
         if (data.summary) {
             document.getElementById('chat-messages').innerHTML = '';
             addMessage(`📄 ${data.filename}`, 'user-message');

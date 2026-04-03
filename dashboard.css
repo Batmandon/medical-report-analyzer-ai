@@ -273,3 +273,25 @@ h1 {
 .chat-item:hover {
     background: rgba(9, 79, 231, 0.08);
 }
+
+.delBtn {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+    display: none;
+}
+
+.chat-item:hover .delBtn {
+    display: block;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
