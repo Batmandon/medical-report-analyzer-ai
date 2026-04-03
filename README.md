@@ -1,6 +1,11 @@
-# MedRep 🏥
+# MedRep 
 
 An AI-powered medical report analyzer that helps patients and doctors understand complex medical reports in simple, plain language.
+
+## Live Demo
+
+- Frontend: https://helpful-eclair-40c189.netlify.app
+- Backend API: https://medical-report-analyzer-ai-production.up.railway.app/docs
 
 ## What it does
 
@@ -84,6 +89,8 @@ Open `dashboard.html` in your browser.
 | GET | `/files/{file_id}` | Get file summary |
 | GET | `/chat/history/{file_id}` | Get chat history |
 | DELETE | `/delete/files` | Delete a file |
+
+
 
 ## Roadmap
 
