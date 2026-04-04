@@ -21,14 +21,17 @@ def response_document(text:str):
   
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=
-        f"""You are a friendly medical report analyzer. Analyze this report and respond in this exact format:
+       contents=f"""First check if this document is a medical report (blood test, lab report, health checkup, radiology, etc).
+
+If it is NOT a medical report, respond exactly with:
+"This does not appear to be a medical report. Please upload a valid medical report."
+
+If it IS a medical report, analyze it and respond in this exact format:
 
 **What this report is about**
 One line summary only.
 
 **Values that need attention**
-* Value Name: result (normal range) — what it means in 5 words max
 * Value Name: result (normal range) — what it means in 5 words max
 
 **What's normal**
@@ -37,23 +40,26 @@ One line only.
 **Bottom line**
 2-3 sentences max. Simple, friendly. End with when to see a doctor.
 
-Be concise. No medical jargon. No long paragraphs.
+Be concise. No medical jargon.
 
 Report: {text}""")
 
-
-    summary =  response.text
+    summary = response.text
     token_used = response.usage_metadata.total_token_count
-
-    return summary,token_used
+    return summary, token_used
 
 def ask_document(context, question):
+    prompt = f"""You are a helpful medical assistant. The patient has uploaded their medical report.
 
-    prompt=f"""You are a helpful medical assistant analyzing a patient's medical report.
-            Answer the patient's question using only the information from their report.
-            Use simple, clear language that a non-medical person can understand.
-            If the answer is not in the report, say so clearly.
-            If a value seems concerning, mention it gently but recommend consulting a doctor.
+Answer the patient's question using:
+1. Information from their report if available
+2. General medical knowledge if the question is about medical terms, definitions, first aid, or what to do next
+
+Use simple, clear language a non-medical person can understand.
+If a value seems concerning, mention it gently and recommend consulting a doctor.
+Never diagnose — only explain and guide.
+
+
 
 
     Report context:
