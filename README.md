@@ -1,6 +1,6 @@
 # MedRep 
 
-An AI-powered medical report analyzer that helps patients and doctors understand complex medical reports in simple, plain language.
+An AI powered medical report analyzer that helps patients and doctors understand complex medical reports in simple, plain language.
 
 ## Live Demo
 
@@ -33,13 +33,13 @@ Upload a medical report (PDF) and MedRep will:
 
 ## Features
 
-- 🔐 User authentication (register, login, token refresh)
-- 📄 PDF upload and AI-powered summarization
-- 💬 Q&A chat about your report using RAG
-- 📁 Sidebar with all uploaded reports
-- 🗑️ Delete reports
-- ⏳ Chat history saved per report
-- 📱 Responsive layout
+-  User authentication (register, login, token refresh)
+-  PDF upload and AI-powered summarization
+-  Q&A chat about your report using RAG
+-  Sidebar with all uploaded reports
+-  Delete reports
+-  Chat history saved per report
+-  Responsive layout
 
 ## Getting Started
 
@@ -102,7 +102,7 @@ Open `dashboard.html` in your browser.
 
 ## Author
 
-Built by Batman 🦇 — a self-taught developer learning by building real projects.
+Batman 
 
 ## License
 
